@@ -1,4 +1,4 @@
-package rest_errors
+package api_error
 
 import (
 	"errors"
@@ -80,4 +80,12 @@ func TestNewInternalServerErrorWithExtraError(t *testing.T) {
 	assert.NotNil(t, err.Causes())
 	assert.EqualValues(t, 1, len(err.Causes()))
 	assert.EqualValues(t, "test error", err.Causes()[0])
+}
+
+func TestNewProcessingConflictError(t *testing.T) {
+	err := NewProcessingConflictError("new processing conflict server error test")
+	assert.NotNil(t, err)
+	assert.EqualValues(t, "new processing conflict server error test", err.Message())
+	assert.EqualValues(t, http.StatusConflict, err.StatusCode())
+	assert.Nil(t, err.Causes())
 }

@@ -1,2 +1,2 @@
 # services_utils
-Utilities for REST services
+Utilities for my REST services
