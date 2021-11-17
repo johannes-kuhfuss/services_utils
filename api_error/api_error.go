@@ -67,10 +67,17 @@ func NewNotFoundError(msg string) ApiErr {
 	}
 }
 
+func NewUnauthenticatedError(msg string) ApiErr {
+	return apiErr{
+		ErrMessage:    msg,
+		ErrStatusCode: http.StatusUnauthorized, //401, temporary, e.g. wrong credentials
+	}
+}
+
 func NewUnauthorizedError(msg string) ApiErr {
 	return apiErr{
 		ErrMessage:    msg,
-		ErrStatusCode: http.StatusUnauthorized,
+		ErrStatusCode: http.StatusForbidden, //403, permanent, user does not have access to resource
 	}
 }
 
@@ -89,5 +96,12 @@ func NewProcessingConflictError(msg string) ApiErr {
 	return apiErr{
 		ErrMessage:    msg,
 		ErrStatusCode: http.StatusConflict,
+	}
+}
+
+func NewValidationError(msg string) ApiErr {
+	return apiErr{
+		ErrMessage:    msg,
+		ErrStatusCode: http.StatusUnprocessableEntity,
 	}
 }

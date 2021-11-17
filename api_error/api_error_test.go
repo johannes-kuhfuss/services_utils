@@ -65,9 +65,17 @@ func TestNewInternalServerErrorNoExtraError(t *testing.T) {
 }
 
 func TestNewUnauthorizedError(t *testing.T) {
-	err := NewUnauthorizedError("new unauthorized server error test")
+	err := NewUnauthorizedError("new unauthorized server error test - user cannot access resource - 403 permanent")
 	assert.NotNil(t, err)
-	assert.EqualValues(t, "new unauthorized server error test", err.Message())
+	assert.EqualValues(t, "new unauthorized server error test - user cannot access resource - 403 permanent", err.Message())
+	assert.EqualValues(t, http.StatusForbidden, err.StatusCode())
+	assert.Nil(t, err.Causes())
+}
+
+func TestNewUnauthenticatedError(t *testing.T) {
+	err := NewUnauthenticatedError("new unauthenticated error test - wrong credentials - 401 try again")
+	assert.NotNil(t, err)
+	assert.EqualValues(t, "new unauthenticated error test - wrong credentials - 401 try again", err.Message())
 	assert.EqualValues(t, http.StatusUnauthorized, err.StatusCode())
 	assert.Nil(t, err.Causes())
 }
@@ -87,5 +95,13 @@ func TestNewProcessingConflictError(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.EqualValues(t, "new processing conflict server error test", err.Message())
 	assert.EqualValues(t, http.StatusConflict, err.StatusCode())
+	assert.Nil(t, err.Causes())
+}
+
+func TestNewValidationError(t *testing.T) {
+	err := NewValidationError("new validation error test")
+	assert.NotNil(t, err)
+	assert.EqualValues(t, "new validation error test", err.Message())
+	assert.EqualValues(t, http.StatusUnprocessableEntity, err.StatusCode())
 	assert.Nil(t, err.Causes())
 }
