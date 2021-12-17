@@ -39,11 +39,6 @@ func TestGetLogger(t *testing.T) {
 	assert.NotNil(t, myLogger)
 }
 
-func TestGetLog(t *testing.T) {
-	myLogger := GetLog()
-	assert.NotNil(t, myLogger)
-}
-
 func TestInfo(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "info")
 	initLogger(true)

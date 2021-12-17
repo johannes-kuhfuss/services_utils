@@ -101,10 +101,6 @@ func GetLogger() loggerInterface {
 	return log
 }
 
-func GetLog() *zap.Logger {
-	return log.log
-}
-
 func (l logger) Printf(format string, v ...interface{}) {
 	if len(v) == 0 {
 		Info(format)
@@ -128,7 +124,6 @@ func (l logger) Write(data []byte) (n int, err error) {
 	} else {
 		Info(logMessage)
 	}
-
 	return len(data), nil
 }
 
