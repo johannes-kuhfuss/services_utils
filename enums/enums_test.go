@@ -12,20 +12,20 @@ var (
 	TestEnum1 Enum
 	TestEnum2 Enum
 	eItemOne  EnumItem = EnumItem{
-		idx: 0,
-		val: "test",
+		Idx: 0,
+		Val: "test",
 	}
 	eItemTwo EnumItem = EnumItem{
-		idx: 1,
-		val: "pinguin",
+		Idx: 1,
+		Val: "pinguin",
 	}
 )
 
 func setup() func() {
-	TestEnum1.items = append(TestEnum1.items, eItemOne)
-	TestEnum1.items = append(TestEnum1.items, eItemTwo)
+	TestEnum1.Items = append(TestEnum1.Items, eItemOne)
+	TestEnum1.Items = append(TestEnum1.Items, eItemTwo)
 	return func() {
-		TestEnum1.items = nil
+		TestEnum1.Items = nil
 	}
 }
 
@@ -46,8 +46,8 @@ func Test_ItemByValue_TestItem_Returns_TestItemValue(t *testing.T) {
 
 	assert.NotNil(t, item)
 	assert.Nil(t, err)
-	assert.EqualValues(t, 0, item.idx)
-	assert.EqualValues(t, "test", item.val)
+	assert.EqualValues(t, 0, item.Idx)
+	assert.EqualValues(t, "test", item.Val)
 }
 
 func TestItemByIndex_NoItem_Returns_NotFoundError(t *testing.T) {
@@ -67,8 +67,8 @@ func TestItemByIndex_TestItem_Returns_TestItemIndex(t *testing.T) {
 
 	assert.NotNil(t, item)
 	assert.Nil(t, err)
-	assert.EqualValues(t, 1, item.idx)
-	assert.EqualValues(t, "pinguin", item.val)
+	assert.EqualValues(t, 1, item.Idx)
+	assert.EqualValues(t, "pinguin", item.Val)
 }
 
 func Test_Value_NoItem_Returns_NotFoundError(t *testing.T) {
@@ -156,7 +156,7 @@ func Test_FromMap_EmptyMap_Returns_EmptyEnum(t *testing.T) {
 	TestEnum2.FromMap(m)
 
 	assert.NotNil(t, TestEnum2)
-	assert.EqualValues(t, 0, len(TestEnum2.items))
+	assert.EqualValues(t, 0, len(TestEnum2.Items))
 }
 
 func Test_FromMap_Map_Returns_Enum(t *testing.T) {
@@ -169,7 +169,7 @@ func Test_FromMap_Map_Returns_Enum(t *testing.T) {
 	val3, _ := TestEnum2.Value(3)
 	val4, _ := TestEnum2.Value(4)
 	assert.NotNil(t, TestEnum2)
-	assert.EqualValues(t, 2, len(TestEnum2.items))
+	assert.EqualValues(t, 2, len(TestEnum2.Items))
 	assert.EqualValues(t, val3, m[3])
 	assert.EqualValues(t, val4, m[4])
 }

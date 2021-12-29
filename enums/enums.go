@@ -10,11 +10,11 @@ import (
 // Usage: var AccountTypes = Enum{[]EnumItem{{0, "Basic"}, {1, "Advanced"}}}
 
 type EnumItem struct {
-	idx int
-	val string
+	Idx int
+	Val string
 }
 type Enum struct {
-	items []EnumItem
+	Items []EnumItem
 }
 
 func (e *Enum) Value(i int) (string, api_error.ApiErr) {
@@ -22,7 +22,7 @@ func (e *Enum) Value(i int) (string, api_error.ApiErr) {
 	if err != nil {
 		return "", err
 	}
-	return item.val, nil
+	return item.Val, nil
 }
 
 func (e *Enum) Index(v string) (int, api_error.ApiErr) {
@@ -30,21 +30,21 @@ func (e *Enum) Index(v string) (int, api_error.ApiErr) {
 	if err != nil {
 		return 0, err
 	}
-	return item.idx, nil
+	return item.Idx, nil
 }
 
 func (e *Enum) Values() []string {
 	var names []string
-	for _, item := range e.items {
-		names = append(names, item.val)
+	for _, item := range e.Items {
+		names = append(names, item.Val)
 	}
 	return names
 }
 
 func (e *Enum) AsMap() map[int]string {
 	m := make(map[int]string)
-	for _, item := range e.items {
-		m[item.idx] = item.val
+	for _, item := range e.Items {
+		m[item.Idx] = item.Val
 	}
 	return m
 }
@@ -52,15 +52,15 @@ func (e *Enum) AsMap() map[int]string {
 func (e *Enum) FromMap(m map[int]string) {
 	var eItem EnumItem
 	for index, item := range m {
-		eItem.idx = index
-		eItem.val = item
-		e.items = append(e.items, eItem)
+		eItem.Idx = index
+		eItem.Val = item
+		e.Items = append(e.Items, eItem)
 	}
 }
 
 func (e *Enum) ItemByValue(v string) (*EnumItem, api_error.ApiErr) {
-	for _, item := range e.items {
-		if strings.EqualFold(v, item.val) {
+	for _, item := range e.Items {
+		if strings.EqualFold(v, item.Val) {
 			return &item, nil
 		}
 	}
@@ -68,8 +68,8 @@ func (e *Enum) ItemByValue(v string) (*EnumItem, api_error.ApiErr) {
 }
 
 func (e *Enum) ItemByIndex(i int) (*EnumItem, api_error.ApiErr) {
-	for _, item := range e.items {
-		if item.idx == i {
+	for _, item := range e.Items {
+		if item.Idx == i {
 			return &item, nil
 		}
 	}
