@@ -133,7 +133,7 @@ func Test_Values_TwoItems_Returns_StringSlice(t *testing.T) {
 func Test_AsMap_NoItems_Returns_EmptyMap(t *testing.T) {
 	m := EmptyEnum.AsMap()
 
-	assert.IsType(t, map[int]string{}, m)
+	assert.IsType(t, map[int32]string{}, m)
 	assert.EqualValues(t, 0, len(m))
 }
 
@@ -144,14 +144,14 @@ func Test_AsMap_TwoItems_Returns_Map(t *testing.T) {
 	m := TestEnum1.AsMap()
 
 	assert.NotNil(t, m)
-	assert.IsType(t, map[int]string{}, m)
+	assert.IsType(t, map[int32]string{}, m)
 	assert.EqualValues(t, 2, len(m))
 	assert.EqualValues(t, "test", m[0])
 	assert.EqualValues(t, "pinguin", m[1])
 }
 
 func Test_FromMap_EmptyMap_Returns_EmptyEnum(t *testing.T) {
-	m := make(map[int]string)
+	m := make(map[int32]string)
 
 	TestEnum2.FromMap(m)
 
@@ -160,7 +160,7 @@ func Test_FromMap_EmptyMap_Returns_EmptyEnum(t *testing.T) {
 }
 
 func Test_FromMap_Map_Returns_Enum(t *testing.T) {
-	m := make(map[int]string)
+	m := make(map[int32]string)
 	m[3] = "extra"
 	m[4] = "super"
 

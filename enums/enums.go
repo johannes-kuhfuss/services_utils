@@ -10,14 +10,14 @@ import (
 // Usage: var AccountTypes = Enum{[]EnumItem{{0, "Basic"}, {1, "Advanced"}}}
 
 type EnumItem struct {
-	Idx int
+	Idx int32
 	Val string
 }
 type Enum struct {
 	Items []EnumItem
 }
 
-func (e *Enum) AsValue(i int) (string, api_error.ApiErr) {
+func (e *Enum) AsValue(i int32) (string, api_error.ApiErr) {
 	item, err := e.ItemByIndex(i)
 	if err != nil {
 		return "", err
@@ -25,7 +25,7 @@ func (e *Enum) AsValue(i int) (string, api_error.ApiErr) {
 	return item.Val, nil
 }
 
-func (e *Enum) AsIndex(v string) (int, api_error.ApiErr) {
+func (e *Enum) AsIndex(v string) (int32, api_error.ApiErr) {
 	item, err := e.ItemByValue(v)
 	if err != nil {
 		return 0, err
@@ -41,15 +41,15 @@ func (e *Enum) Values() []string {
 	return names
 }
 
-func (e *Enum) AsMap() map[int]string {
-	m := make(map[int]string)
+func (e *Enum) AsMap() map[int32]string {
+	m := make(map[int32]string)
 	for _, item := range e.Items {
 		m[item.Idx] = item.Val
 	}
 	return m
 }
 
-func (e *Enum) FromMap(m map[int]string) {
+func (e *Enum) FromMap(m map[int32]string) {
 	var eItem EnumItem
 	for index, item := range m {
 		eItem.Idx = index
@@ -67,7 +67,7 @@ func (e *Enum) ItemByValue(v string) (*EnumItem, api_error.ApiErr) {
 	return nil, api_error.NewNotFoundError(fmt.Sprintf("No item with value %v found", v))
 }
 
-func (e *Enum) ItemByIndex(i int) (*EnumItem, api_error.ApiErr) {
+func (e *Enum) ItemByIndex(i int32) (*EnumItem, api_error.ApiErr) {
 	for _, item := range e.Items {
 		if item.Idx == i {
 			return &item, nil
