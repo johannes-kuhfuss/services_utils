@@ -1,9 +1,9 @@
 module github.com/johannes-kuhfuss/services_utils
 
-go 1.18
+go 1.19
 
 require (
-	github.com/stretchr/testify v1.7.1
+	github.com/stretchr/testify v1.8.0
 	go.uber.org/zap v1.21.0
 )
 
