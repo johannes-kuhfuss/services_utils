@@ -306,3 +306,25 @@ func TestWriteDebug(t *testing.T) {
 	assert.NotEmpty(t, m["time"])
 	assert.EqualValues(t, m["msg"], "the is a debug message")
 }
+
+func Test_addtoLogList_DoesNotOverflow(t *testing.T) {
+	loglist = nil
+	for i := 0; i < 600; i++ {
+		addToLogList("Info", "I was here")
+	}
+	assert.EqualValues(t, 500, len(loglist))
+}
+
+func Test_addtoLogList_RetainsEntries(t *testing.T) {
+	loglist = nil
+	addToLogList("Info", "One")
+	addToLogList("Warn", "Two")
+	addToLogList("Error", "Three")
+	l := GetLogList()
+	assert.EqualValues(t, "Info", l[0].LogLevel)
+	assert.EqualValues(t, "One", l[0].LogMessage)
+	assert.EqualValues(t, "Warn", l[1].LogLevel)
+	assert.EqualValues(t, "Two", l[1].LogMessage)
+	assert.EqualValues(t, "Error", l[2].LogLevel)
+	assert.EqualValues(t, "Three", l[2].LogMessage)
+}

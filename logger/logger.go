@@ -6,19 +6,23 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"time"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
 const (
-	envLogLevel  = "LOG_LEVEL"
-	envLogOutput = "LOG_OUTPUT"
+	envLogLevel      = "LOG_LEVEL"
+	envLogOutput     = "LOG_OUTPUT"
+	logListMaxLength = 500
+	logListTrimBy    = 100
 )
 
 var (
-	log  logger
-	sink *MemorySink
+	log     logger
+	sink    *MemorySink
+	loglist []LogEntry
 )
 
 type loggerInterface interface {
@@ -38,6 +42,12 @@ type Field struct {
 
 type MemorySink struct {
 	*bytes.Buffer
+}
+
+type LogEntry struct {
+	LogTime    string
+	LogLevel   string
+	LogMessage string
 }
 
 func (s *MemorySink) Close() error { return nil }
@@ -136,25 +146,48 @@ func fieldsToZapField(tags []Field) []zapcore.Field {
 	return zapTags
 }
 
+func trimList() {
+	if len(loglist) > logListMaxLength {
+		loglist = loglist[logListTrimBy:]
+	}
+}
+
+func addToLogList(logLevel string, msg string) {
+	var entry LogEntry
+	entry.LogTime = time.Now().Format(time.RFC3339)
+	entry.LogLevel = logLevel
+	entry.LogMessage = msg
+	loglist = append(loglist, entry)
+	trimList()
+}
+
+func GetLogList() []LogEntry {
+	return loglist
+}
+
 func Debug(msg string, tags ...Field) {
+	addToLogList("Debug", msg)
 	zapTags := fieldsToZapField(tags)
 	log.log.Debug(msg, zapTags...)
 	log.log.Sync()
 }
 
 func Info(msg string, tags ...Field) {
+	addToLogList("Info", msg)
 	zapTags := fieldsToZapField(tags)
 	log.log.Info(msg, zapTags...)
 	log.log.Sync()
 }
 
 func Warn(msg string, tags ...Field) {
+	addToLogList("Warn", msg)
 	zapTags := fieldsToZapField(tags)
 	log.log.Warn(msg, zapTags...)
 	log.log.Sync()
 }
 
 func Error(msg string, err error, tags ...Field) {
+	addToLogList("Error", msg)
 	zapTags := fieldsToZapField(tags)
 	zapTags = append(zapTags, zap.NamedError("error", err))
 	log.log.Error(msg, zapTags...)
