@@ -309,10 +309,10 @@ func TestWriteDebug(t *testing.T) {
 
 func Test_addtoLogList_DoesNotOverflow(t *testing.T) {
 	loglist = nil
-	for i := 0; i < 600; i++ {
+	for i := 0; i < 1100; i++ {
 		addToLogList("Info", "I was here")
 	}
-	assert.EqualValues(t, 500, len(loglist))
+	assert.EqualValues(t, 1000, len(loglist))
 }
 
 func Test_addtoLogList_RetainsEntries(t *testing.T) {

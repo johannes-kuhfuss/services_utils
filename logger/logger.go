@@ -15,7 +15,7 @@ import (
 const (
 	envLogLevel      = "LOG_LEVEL"
 	envLogOutput     = "LOG_OUTPUT"
-	logListMaxLength = 500
+	logListMaxLength = 1000
 	logListTrimBy    = 100
 )
 
@@ -187,7 +187,13 @@ func Warn(msg string, tags ...Field) {
 }
 
 func Error(msg string, err error, tags ...Field) {
-	addToLogList("Error", msg)
+	var m string
+	if err != nil {
+		m = msg + ": " + err.Error()
+	} else {
+		m = msg
+	}
+	addToLogList("Error", m)
 	zapTags := fieldsToZapField(tags)
 	zapTags = append(zapTags, zap.NamedError("error", err))
 	log.log.Error(msg, zapTags...)
