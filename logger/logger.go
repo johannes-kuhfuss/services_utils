@@ -15,7 +15,7 @@ import (
 const (
 	envLogLevel      = "LOG_LEVEL"
 	envLogOutput     = "LOG_OUTPUT"
-	logListMaxLength = 1000
+	logListMaxLength = 750
 	logListTrimBy    = 100
 )
 
@@ -92,6 +92,8 @@ func getLevel() zapcore.Level {
 		return zap.DebugLevel
 	case "info":
 		return zap.InfoLevel
+	case "warn":
+		return zap.WarnLevel
 	case "error":
 		return zap.ErrorLevel
 	default:
@@ -166,7 +168,6 @@ func GetLogList() []LogEntry {
 }
 
 func Debug(msg string, tags ...Field) {
-	addToLogList("Debug", msg)
 	zapTags := fieldsToZapField(tags)
 	log.log.Debug(msg, zapTags...)
 	log.log.Sync()
