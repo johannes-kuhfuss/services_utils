@@ -15,7 +15,7 @@ import (
 const (
 	envLogLevel      = "LOG_LEVEL"
 	envLogOutput     = "LOG_OUTPUT"
-	logListMaxLength = 750
+	logListMaxLength = 700
 	logListTrimBy    = 100
 )
 
