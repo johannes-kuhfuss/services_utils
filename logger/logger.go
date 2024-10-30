@@ -167,9 +167,27 @@ func GetLogList() []LogEntry {
 	return loglist
 }
 
+func ClearLogList() {
+	loglist = loglist[:0]
+}
+
+func Debugf(msg string, a ...any) {
+	m := fmt.Sprintf(msg, a...)
+	addToLogList("Debug", m)
+	log.log.Debug(m)
+	log.log.Sync()
+}
+
 func Debug(msg string, tags ...Field) {
 	zapTags := fieldsToZapField(tags)
 	log.log.Debug(msg, zapTags...)
+	log.log.Sync()
+}
+
+func Infof(msg string, a ...any) {
+	m := fmt.Sprintf(msg, a...)
+	addToLogList("Info", m)
+	log.log.Info(m)
 	log.log.Sync()
 }
 
@@ -180,10 +198,24 @@ func Info(msg string, tags ...Field) {
 	log.log.Sync()
 }
 
+func Warnf(msg string, a ...any) {
+	m := fmt.Sprintf(msg, a...)
+	addToLogList("Warn", m)
+	log.log.Warn(m)
+	log.log.Sync()
+}
+
 func Warn(msg string, tags ...Field) {
 	addToLogList("Warn", msg)
 	zapTags := fieldsToZapField(tags)
 	log.log.Warn(msg, zapTags...)
+	log.log.Sync()
+}
+
+func Errorf(msg string, a ...any) {
+	m := fmt.Sprintf(msg, a...)
+	addToLogList("Error", m)
+	log.log.Error(m)
 	log.log.Sync()
 }
 

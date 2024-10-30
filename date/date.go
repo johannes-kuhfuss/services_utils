@@ -37,8 +37,7 @@ func GetNowLocalString(location string) (*string, api_error.ApiErr) {
 	localtime, err := GetNowLocal(strings.TrimSpace(location))
 	if err != nil {
 		return nil, err
-	} else {
-		localtimeStr := localtime.Format(ApiDateLayout)
-		return &localtimeStr, nil
 	}
+	localtimeStr := localtime.Format(ApiDateLayout)
+	return &localtimeStr, nil
 }
