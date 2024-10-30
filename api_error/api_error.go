@@ -46,10 +46,13 @@ func NewError(msg string, code int, causes []interface{}) ApiErr {
 }
 
 func NewErrorFromBytes(bytes []byte) (restErr ApiErr, e error) {
-	if err := json.Unmarshal(bytes, &restErr); err != nil {
+	var (
+		rerr apiErr
+	)
+	if err := json.Unmarshal(bytes, &rerr); err != nil {
 		return nil, errors.New("invalid json")
 	}
-	return restErr, nil
+	return rerr, nil
 }
 
 func NewBadRequestError(msg string) ApiErr {
