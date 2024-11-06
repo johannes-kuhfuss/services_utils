@@ -48,16 +48,21 @@ func TestGetLoggerReturnsLogger(t *testing.T) {
 	assert.NotNil(t, myLogger)
 }
 
-func TestInfoWritesInfo(t *testing.T) {
-	os.Setenv("LOG_LEVEL", "info")
-	initLogger(true)
-	Info(infoMsg)
+func extractLog() map[string]interface{} {
 	output := sink.String()
 	m := make(map[string]interface{})
 	err := json.Unmarshal([]byte(output), &m)
 	if err != nil {
 		panic(err)
 	}
+	return m
+}
+
+func TestInfoWritesInfo(t *testing.T) {
+	os.Setenv("LOG_LEVEL", "info")
+	initLogger(true)
+	Info(infoMsg)
+	m := extractLog()
 	assert.EqualValues(t, m["level"], "info")
 	assert.Contains(t, m["caller"], "logger")
 	assert.NotEmpty(t, m["time"])
@@ -71,12 +76,7 @@ func TestInfoWithFieldWritesInfoWithFields(t *testing.T) {
 		Key:   "id",
 		Value: "123",
 	})
-	output := sink.String()
-	m := make(map[string]interface{})
-	err := json.Unmarshal([]byte(output), &m)
-	if err != nil {
-		panic(err)
-	}
+	m := extractLog()
 	assert.EqualValues(t, m["level"], "info")
 	assert.Contains(t, m["caller"], "logger")
 	assert.NotEmpty(t, m["time"])
@@ -88,12 +88,7 @@ func TestErrorWritesError(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "error")
 	initLogger(true)
 	Error(errorMsg, errors.New(newErrorMsg))
-	output := sink.String()
-	m := make(map[string]interface{})
-	err := json.Unmarshal([]byte(output), &m)
-	if err != nil {
-		panic(err)
-	}
+	m := extractLog()
 	assert.EqualValues(t, m["level"], "error")
 	assert.Contains(t, m["caller"], "logger")
 	assert.NotEmpty(t, m["time"])
@@ -108,12 +103,7 @@ func TestErrorWithFieldWritesErrorWithField(t *testing.T) {
 		Key:   "id",
 		Value: "123",
 	})
-	output := sink.String()
-	m := make(map[string]interface{})
-	err := json.Unmarshal([]byte(output), &m)
-	if err != nil {
-		panic(err)
-	}
+	m := extractLog()
 	assert.EqualValues(t, m["level"], "error")
 	assert.Contains(t, m["caller"], "logger")
 	assert.NotEmpty(t, m["time"])
@@ -126,13 +116,7 @@ func TestDebugWritesDebug(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "debug")
 	initLogger(true)
 	Debug(debugMsg)
-	output := sink.String()
-
-	m := make(map[string]interface{})
-	err := json.Unmarshal([]byte(output), &m)
-	if err != nil {
-		panic(err)
-	}
+	m := extractLog()
 	assert.EqualValues(t, m["level"], "debug")
 	assert.Contains(t, m["caller"], "logger")
 	assert.NotEmpty(t, m["time"])
@@ -146,13 +130,7 @@ func TestDebugWithFieldWritesDebugWithField(t *testing.T) {
 		Key:   "id",
 		Value: "123",
 	})
-	output := sink.String()
-
-	m := make(map[string]interface{})
-	err := json.Unmarshal([]byte(output), &m)
-	if err != nil {
-		panic(err)
-	}
+	m := extractLog()
 	assert.EqualValues(t, m["level"], "debug")
 	assert.Contains(t, m["caller"], "logger")
 	assert.NotEmpty(t, m["time"])
@@ -163,12 +141,7 @@ func TestDebugWithFieldWritesDebugWithField(t *testing.T) {
 func TestPrintPrints(t *testing.T) {
 	initLogger(true)
 	log.Print("a", "b")
-	output := sink.String()
-	m := make(map[string]interface{})
-	err := json.Unmarshal([]byte(output), &m)
-	if err != nil {
-		panic(err)
-	}
+	m := extractLog()
 	assert.EqualValues(t, m["level"], "info")
 	assert.Contains(t, m["caller"], "logger")
 	assert.NotEmpty(t, m["time"])
@@ -178,12 +151,7 @@ func TestPrintPrints(t *testing.T) {
 func TestPrintfPrints(t *testing.T) {
 	initLogger(true)
 	log.Printf(printfMsg)
-	output := sink.String()
-	m := make(map[string]interface{})
-	err := json.Unmarshal([]byte(output), &m)
-	if err != nil {
-		panic(err)
-	}
+	m := extractLog()
 	assert.EqualValues(t, m["level"], "info")
 	assert.Contains(t, m["caller"], "logger")
 	assert.NotEmpty(t, m["time"])
@@ -193,12 +161,7 @@ func TestPrintfPrints(t *testing.T) {
 func TestPrintfWithFormatPrints(t *testing.T) {
 	initLogger(true)
 	log.Printf("my %s message", "formatted")
-	output := sink.String()
-	m := make(map[string]interface{})
-	err := json.Unmarshal([]byte(output), &m)
-	if err != nil {
-		panic(err)
-	}
+	m := extractLog()
 	assert.EqualValues(t, m["level"], "info")
 	assert.Contains(t, m["caller"], "logger")
 	assert.NotEmpty(t, m["time"])
@@ -208,12 +171,7 @@ func TestPrintfWithFormatPrints(t *testing.T) {
 func TestWarnWritesWarn(t *testing.T) {
 	initLogger(true)
 	Warn(warnMsg)
-	output := sink.String()
-	m := make(map[string]interface{})
-	err := json.Unmarshal([]byte(output), &m)
-	if err != nil {
-		panic(err)
-	}
+	m := extractLog()
 	assert.EqualValues(t, m["level"], "warn")
 	assert.Contains(t, m["caller"], "logger")
 	assert.NotEmpty(t, m["time"])
@@ -226,12 +184,7 @@ func TestWarnWithFieldWritesWarnWithFields(t *testing.T) {
 		Key:   "id",
 		Value: "123",
 	})
-	output := sink.String()
-	m := make(map[string]interface{})
-	err := json.Unmarshal([]byte(output), &m)
-	if err != nil {
-		panic(err)
-	}
+	m := extractLog()
 	assert.EqualValues(t, m["level"], "warn")
 	assert.Contains(t, m["caller"], "logger")
 	assert.NotEmpty(t, m["time"])
@@ -242,12 +195,7 @@ func TestWarnWithFieldWritesWarnWithFields(t *testing.T) {
 func TestWriteInfoWritesInfo(t *testing.T) {
 	initLogger(true)
 	written, writeErr := log.Write([]byte(infoMsg))
-	output := sink.String()
-	m := make(map[string]interface{})
-	err := json.Unmarshal([]byte(output), &m)
-	if err != nil {
-		panic(err)
-	}
+	m := extractLog()
 	assert.NotNil(t, written)
 	assert.Nil(t, writeErr)
 	assert.EqualValues(t, len(infoMsg), written)
@@ -260,12 +208,7 @@ func TestWriteInfoWritesInfo(t *testing.T) {
 func TestWriteWarnWritesWarn(t *testing.T) {
 	initLogger(true)
 	written, writeErr := log.Write([]byte(warnMsg))
-	output := sink.String()
-	m := make(map[string]interface{})
-	err := json.Unmarshal([]byte(output), &m)
-	if err != nil {
-		panic(err)
-	}
+	m := extractLog()
 	assert.NotNil(t, written)
 	assert.Nil(t, writeErr)
 	assert.EqualValues(t, len(warnMsg), written)
@@ -278,12 +221,7 @@ func TestWriteWarnWritesWarn(t *testing.T) {
 func TestWriteErrorWritesError(t *testing.T) {
 	initLogger(true)
 	written, writeErr := log.Write([]byte(errorMsg))
-	output := sink.String()
-	m := make(map[string]interface{})
-	err := json.Unmarshal([]byte(output), &m)
-	if err != nil {
-		panic(err)
-	}
+	m := extractLog()
 	assert.NotNil(t, written)
 	assert.Nil(t, writeErr)
 	assert.EqualValues(t, len(errorMsg), written)
@@ -297,12 +235,7 @@ func TestWriteDebugWritesDebug(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "debug")
 	initLogger(true)
 	written, writeErr := log.Write([]byte(debugMsg))
-	output := sink.String()
-	m := make(map[string]interface{})
-	err := json.Unmarshal([]byte(output), &m)
-	if err != nil {
-		panic(err)
-	}
+	m := extractLog()
 	assert.NotNil(t, written)
 	assert.Nil(t, writeErr)
 	assert.EqualValues(t, len(debugMsg), written)
@@ -350,13 +283,7 @@ func TestDebugfWritesDebugWithFormat(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "debug")
 	initLogger(true)
 	Debugf("my debug message: %v", "A")
-	output := sink.String()
-
-	m := make(map[string]interface{})
-	err := json.Unmarshal([]byte(output), &m)
-	if err != nil {
-		panic(err)
-	}
+	m := extractLog()
 	assert.EqualValues(t, m["level"], "debug")
 	assert.Contains(t, m["caller"], "logger")
 	assert.NotEmpty(t, m["time"])
@@ -367,13 +294,7 @@ func TestInfofWritesInfoWithFormat(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "info")
 	initLogger(true)
 	Infof("my info message: %v", "A")
-	output := sink.String()
-
-	m := make(map[string]interface{})
-	err := json.Unmarshal([]byte(output), &m)
-	if err != nil {
-		panic(err)
-	}
+	m := extractLog()
 	assert.EqualValues(t, m["level"], "info")
 	assert.Contains(t, m["caller"], "logger")
 	assert.NotEmpty(t, m["time"])
@@ -384,13 +305,7 @@ func TestWarnfWritesWarnWithFormat(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "warn")
 	initLogger(true)
 	Warnf("my warn message: %v", "A")
-	output := sink.String()
-
-	m := make(map[string]interface{})
-	err := json.Unmarshal([]byte(output), &m)
-	if err != nil {
-		panic(err)
-	}
+	m := extractLog()
 	assert.EqualValues(t, m["level"], "warn")
 	assert.Contains(t, m["caller"], "logger")
 	assert.NotEmpty(t, m["time"])
@@ -401,13 +316,7 @@ func TestErrorfWritesErrorWithFormat(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "error")
 	initLogger(true)
 	Errorf("my error message: %v", "A")
-	output := sink.String()
-
-	m := make(map[string]interface{})
-	err := json.Unmarshal([]byte(output), &m)
-	if err != nil {
-		panic(err)
-	}
+	m := extractLog()
 	assert.EqualValues(t, m["level"], "error")
 	assert.Contains(t, m["caller"], "logger")
 	assert.NotEmpty(t, m["time"])
