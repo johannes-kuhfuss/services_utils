@@ -58,7 +58,7 @@ func TestNewNotFoundError(t *testing.T) {
 }
 
 func TestNewInternalServerErrorNoExtraError(t *testing.T) {
-	msg := "new internal server error test"
+	msg := "new internal server error test, no extra error"
 	err := NewInternalServerError(msg, nil)
 	assert.NotNil(t, err)
 	assert.EqualValues(t, msg, err.Message())
@@ -83,9 +83,10 @@ func TestNewUnauthenticatedError(t *testing.T) {
 }
 
 func TestNewInternalServerErrorWithExtraError(t *testing.T) {
-	err := NewInternalServerError("new internal server error test", errors.New("test error"))
+	msg := "new internal server error test"
+	err := NewInternalServerError(msg, errors.New("test error"))
 	assert.NotNil(t, err)
-	assert.EqualValues(t, "new internal server error test", err.Message())
+	assert.EqualValues(t, msg, err.Message())
 	assert.EqualValues(t, http.StatusInternalServerError, err.StatusCode())
 	assert.NotNil(t, err.Causes())
 	assert.EqualValues(t, 1, len(err.Causes()))
