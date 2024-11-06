@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_SliceContainsString_NotInSlice_Returns_False(t *testing.T) {
+func TestSliceContainsStringNotInSliceReturnsFalse(t *testing.T) {
 	source := []string{"New York", "Rio", "Tokyo"}
 
 	in := SliceContainsString(source, "Paris")
@@ -14,7 +14,7 @@ func Test_SliceContainsString_NotInSlice_Returns_False(t *testing.T) {
 	assert.EqualValues(t, false, in)
 }
 
-func Test_SliceContainsString_InSlice_Returns_True(t *testing.T) {
+func TestSliceContainsStringInSliceReturnsTrue(t *testing.T) {
 	source := []string{"New York", "Rio", "Tokyo"}
 
 	in := SliceContainsString(source, "Rio")

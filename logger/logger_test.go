@@ -10,36 +10,36 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_Constants(t *testing.T) {
+func TestConstants(t *testing.T) {
 	assert.EqualValues(t, envLogLevel, "LOG_LEVEL")
 	assert.EqualValues(t, envLogOutput, "LOG_OUTPUT")
 }
 
-func Test_MemSinkClose(t *testing.T) {
+func TestMemSinkClose(t *testing.T) {
 	sink = &MemorySink{new(bytes.Buffer)}
 	result := sink.Close()
 	assert.Nil(t, result)
 }
 
-func Test_MemSinkSync(t *testing.T) {
+func TestMemSinkSync(t *testing.T) {
 	sink = &MemorySink{new(bytes.Buffer)}
 	result := sink.Sync()
 	assert.Nil(t, result)
 }
 
-func Test_GetOutput_Returns_Output(t *testing.T) {
+func TestGetOutputReturnsOutput(t *testing.T) {
 	os.Setenv("LOG_OUTPUT", "logoutputtest")
 	result := getOutput()
 	assert.NotNil(t, result)
 	assert.EqualValues(t, "logoutputtest", result)
 }
 
-func Test_GetLogger_Returns_Logger(t *testing.T) {
+func TestGetLoggerReturnsLogger(t *testing.T) {
 	myLogger := GetLogger()
 	assert.NotNil(t, myLogger)
 }
 
-func Test_Info_WritesInfo(t *testing.T) {
+func TestInfoWritesInfo(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "info")
 	initLogger(true)
 	Info("my info message")
@@ -55,7 +55,7 @@ func Test_Info_WritesInfo(t *testing.T) {
 	assert.EqualValues(t, m["msg"], "my info message")
 }
 
-func Test_InfoWithField_WritesInfoWithFields(t *testing.T) {
+func TestInfoWithFieldWritesInfoWithFields(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "info")
 	initLogger(true)
 	Info("my info message", Field{
@@ -75,7 +75,7 @@ func Test_InfoWithField_WritesInfoWithFields(t *testing.T) {
 	assert.EqualValues(t, m["id"], "123")
 }
 
-func Test_Error_Writes_Error(t *testing.T) {
+func TestErrorWritesError(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "error")
 	initLogger(true)
 	Error("my error message", errors.New("new error"))
@@ -92,7 +92,7 @@ func Test_Error_Writes_Error(t *testing.T) {
 	assert.EqualValues(t, m["error"], "new error")
 }
 
-func Test_ErrorWithField_Writes_ErrorWithField(t *testing.T) {
+func TestErrorWithFieldWritesErrorWithField(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "error")
 	initLogger(true)
 	Error("my error message", errors.New("new error"), Field{
@@ -113,7 +113,7 @@ func Test_ErrorWithField_Writes_ErrorWithField(t *testing.T) {
 	assert.EqualValues(t, m["id"], "123")
 }
 
-func Test_Debug_Writes_Debug(t *testing.T) {
+func TestDebugWritesDebug(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "debug")
 	initLogger(true)
 	Debug("my debug message")
@@ -130,7 +130,7 @@ func Test_Debug_Writes_Debug(t *testing.T) {
 	assert.EqualValues(t, m["msg"], "my debug message")
 }
 
-func Test_DebugWithField_Writes_DebugWithField(t *testing.T) {
+func TestDebugWithFieldWritesDebugWithField(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "debug")
 	initLogger(true)
 	Debug("my debug message", Field{
@@ -151,7 +151,7 @@ func Test_DebugWithField_Writes_DebugWithField(t *testing.T) {
 	assert.EqualValues(t, m["id"], "123")
 }
 
-func Test_Print_Prints(t *testing.T) {
+func TestPrintPrints(t *testing.T) {
 	initLogger(true)
 	log.Print("a", "b")
 	output := sink.String()
@@ -166,7 +166,7 @@ func Test_Print_Prints(t *testing.T) {
 	assert.EqualValues(t, m["msg"], "[a b]")
 }
 
-func Test_Printf_Prints(t *testing.T) {
+func TestPrintfPrints(t *testing.T) {
 	initLogger(true)
 	log.Printf("my printf message")
 	output := sink.String()
@@ -181,7 +181,7 @@ func Test_Printf_Prints(t *testing.T) {
 	assert.EqualValues(t, m["msg"], "my printf message")
 }
 
-func Test_PrintfWithFormat_Prints(t *testing.T) {
+func TestPrintfWithFormatPrints(t *testing.T) {
 	initLogger(true)
 	log.Printf("my %s message", "formatted")
 	output := sink.String()
@@ -196,7 +196,7 @@ func Test_PrintfWithFormat_Prints(t *testing.T) {
 	assert.EqualValues(t, m["msg"], "my formatted message")
 }
 
-func Test_Warn_Writes_Warn(t *testing.T) {
+func TestWarnWritesWarn(t *testing.T) {
 	initLogger(true)
 	Warn("my warn message")
 	output := sink.String()
@@ -211,7 +211,7 @@ func Test_Warn_Writes_Warn(t *testing.T) {
 	assert.EqualValues(t, m["msg"], "my warn message")
 }
 
-func Test_WarnWithField_Writes_WarnWithFields(t *testing.T) {
+func TestWarnWithFieldWritesWarnWithFields(t *testing.T) {
 	initLogger(true)
 	Warn("my warn message", Field{
 		Key:   "id",
@@ -230,7 +230,7 @@ func Test_WarnWithField_Writes_WarnWithFields(t *testing.T) {
 	assert.EqualValues(t, m["id"], "123")
 }
 
-func Test_WriteInfo_Writes_Info(t *testing.T) {
+func TestWriteInfoWritesInfo(t *testing.T) {
 	initLogger(true)
 	logMessage := "the is an info message"
 	written, writeErr := log.Write([]byte(logMessage))
@@ -249,7 +249,7 @@ func Test_WriteInfo_Writes_Info(t *testing.T) {
 	assert.EqualValues(t, m["msg"], "the is an info message")
 }
 
-func Test_WriteWarn_Writes_Warn(t *testing.T) {
+func TestWriteWarnWritesWarn(t *testing.T) {
 	initLogger(true)
 	logMessage := "the is a warning message"
 	written, writeErr := log.Write([]byte(logMessage))
@@ -268,7 +268,7 @@ func Test_WriteWarn_Writes_Warn(t *testing.T) {
 	assert.EqualValues(t, m["msg"], "the is a warning message")
 }
 
-func Test_WriteError_Writes_Error(t *testing.T) {
+func TestWriteErrorWritesError(t *testing.T) {
 	initLogger(true)
 	logMessage := "the is an error message"
 	written, writeErr := log.Write([]byte(logMessage))
@@ -287,7 +287,7 @@ func Test_WriteError_Writes_Error(t *testing.T) {
 	assert.EqualValues(t, m["msg"], "the is an error message")
 }
 
-func Test_WriteDebug_Writes_Debug(t *testing.T) {
+func TestWriteDebugWritesDebug(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "debug")
 	initLogger(true)
 	logMessage := "the is a debug message"
@@ -307,7 +307,7 @@ func Test_WriteDebug_Writes_Debug(t *testing.T) {
 	assert.EqualValues(t, m["msg"], "the is a debug message")
 }
 
-func Test_addtoLogList_DoesNotOverflow(t *testing.T) {
+func TestAddtoLogListDoesNotOverflow(t *testing.T) {
 	loglist = nil
 	for i := 0; i < 1100; i++ {
 		addToLogList("Info", "I was here")
@@ -315,7 +315,7 @@ func Test_addtoLogList_DoesNotOverflow(t *testing.T) {
 	assert.EqualValues(t, logListMaxLength, len(loglist))
 }
 
-func Test_addtoLogList_RetainsEntries(t *testing.T) {
+func TestAddtoLogListRetainsEntries(t *testing.T) {
 	loglist = nil
 	addToLogList("Info", "One")
 	addToLogList("Warn", "Two")
@@ -329,7 +329,7 @@ func Test_addtoLogList_RetainsEntries(t *testing.T) {
 	assert.EqualValues(t, "Three", l[2].LogMessage)
 }
 
-func Test_ClearLogList_Clears_LogList(t *testing.T) {
+func TestClearLogListClearsLogList(t *testing.T) {
 	loglist = nil
 	addToLogList("Info", "One")
 	addToLogList("Warn", "Two")
@@ -341,7 +341,7 @@ func Test_ClearLogList_Clears_LogList(t *testing.T) {
 	assert.EqualValues(t, 0, len(l2))
 }
 
-func Test_Debugf_Writes_DebugWithFormat(t *testing.T) {
+func TestDebugfWritesDebugWithFormat(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "debug")
 	initLogger(true)
 	Debugf("my debug message: %v", "A")
@@ -358,7 +358,7 @@ func Test_Debugf_Writes_DebugWithFormat(t *testing.T) {
 	assert.EqualValues(t, m["msg"], "my debug message: A")
 }
 
-func Test_Infof_Writes_InfoWithFormat(t *testing.T) {
+func TestInfofWritesInfoWithFormat(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "info")
 	initLogger(true)
 	Infof("my info message: %v", "A")
@@ -375,7 +375,7 @@ func Test_Infof_Writes_InfoWithFormat(t *testing.T) {
 	assert.EqualValues(t, m["msg"], "my info message: A")
 }
 
-func Test_Warnf_Writes_WarnWithFormat(t *testing.T) {
+func TestWarnfWritesWarnWithFormat(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "warn")
 	initLogger(true)
 	Warnf("my warn message: %v", "A")
@@ -392,7 +392,7 @@ func Test_Warnf_Writes_WarnWithFormat(t *testing.T) {
 	assert.EqualValues(t, m["msg"], "my warn message: A")
 }
 
-func Test_Errorf_Writes_ErrorWithFormat(t *testing.T) {
+func TestErrorfWritesErrorWithFormat(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "error")
 	initLogger(true)
 	Errorf("my error message: %v", "A")

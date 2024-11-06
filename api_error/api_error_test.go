@@ -9,17 +9,18 @@ import (
 )
 
 func TestNewError(t *testing.T) {
-	err := NewError("new error test", 55, nil)
+	msg := "new error test"
+	err := NewError(msg, 55, nil)
 	assert.NotNil(t, err)
-	assert.EqualValues(t, "new error test", err.Message())
+	assert.EqualValues(t, msg, err.Message())
 	assert.EqualValues(t, 55, err.StatusCode())
 	assert.Nil(t, err.Causes())
 }
 
 func TestError(t *testing.T) {
-	err := NewError("new error test", 54, nil)
+	err := NewError("error test", 54, nil)
 	errString := err.Error()
-	assert.EqualValues(t, errString, "Message: new error test - Status: 54 - Causes: []")
+	assert.EqualValues(t, errString, "Message: error test - Status: 54 - Causes: []")
 }
 
 func TestNewErrorFromBytesError(t *testing.T) {
@@ -57,9 +58,10 @@ func TestNewNotFoundError(t *testing.T) {
 }
 
 func TestNewInternalServerErrorNoExtraError(t *testing.T) {
-	err := NewInternalServerError("new internal server error test", nil)
+	msg := "new internal server error test"
+	err := NewInternalServerError(msg, nil)
 	assert.NotNil(t, err)
-	assert.EqualValues(t, "new internal server error test", err.Message())
+	assert.EqualValues(t, msg, err.Message())
 	assert.EqualValues(t, http.StatusInternalServerError, err.StatusCode())
 	assert.Nil(t, err.Causes())
 }

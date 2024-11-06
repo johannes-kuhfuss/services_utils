@@ -29,7 +29,7 @@ func setup() func() {
 	}
 }
 
-func Test_ItemByValue_NoItem_Returns_NotFoundError(t *testing.T) {
+func TestItemByValueNoItemReturnsNotFoundError(t *testing.T) {
 	item, err := EmptyEnum.ItemByValue("test")
 
 	assert.Nil(t, item)
@@ -38,7 +38,7 @@ func Test_ItemByValue_NoItem_Returns_NotFoundError(t *testing.T) {
 	assert.EqualValues(t, http.StatusNotFound, err.StatusCode())
 }
 
-func Test_ItemByValue_TestItem_Returns_TestItemValue(t *testing.T) {
+func TestItemByValueTestItemReturnsTestItemValue(t *testing.T) {
 	teardown := setup()
 	defer teardown()
 
@@ -50,7 +50,7 @@ func Test_ItemByValue_TestItem_Returns_TestItemValue(t *testing.T) {
 	assert.EqualValues(t, "test", item.Val)
 }
 
-func TestItemByIndex_NoItem_Returns_NotFoundError(t *testing.T) {
+func TestItemByIndexNoItemReturnsNotFoundError(t *testing.T) {
 	item, err := EmptyEnum.ItemByIndex(1)
 
 	assert.Nil(t, item)
@@ -59,7 +59,7 @@ func TestItemByIndex_NoItem_Returns_NotFoundError(t *testing.T) {
 	assert.EqualValues(t, http.StatusNotFound, err.StatusCode())
 }
 
-func TestItemByIndex_TestItem_Returns_TestItemIndex(t *testing.T) {
+func TestItemByIndexTestItemReturnsTestItemIndex(t *testing.T) {
 	teardown := setup()
 	defer teardown()
 
@@ -71,7 +71,7 @@ func TestItemByIndex_TestItem_Returns_TestItemIndex(t *testing.T) {
 	assert.EqualValues(t, "pinguin", item.Val)
 }
 
-func Test_Value_NoItem_Returns_NotFoundError(t *testing.T) {
+func TestValueNoItemReturnsNotFoundError(t *testing.T) {
 	val, err := EmptyEnum.AsValue(0)
 
 	assert.Empty(t, val)
@@ -80,7 +80,7 @@ func Test_Value_NoItem_Returns_NotFoundError(t *testing.T) {
 	assert.EqualValues(t, http.StatusNotFound, err.StatusCode())
 }
 
-func Test_Value_TestItem_Returns_Value(t *testing.T) {
+func TestValueTestItemReturnsValue(t *testing.T) {
 	teardown := setup()
 	defer teardown()
 
@@ -91,7 +91,7 @@ func Test_Value_TestItem_Returns_Value(t *testing.T) {
 	assert.EqualValues(t, "test", val)
 }
 
-func Test_Index_NoItem_Returns_NotFoundError(t *testing.T) {
+func TestIndexNoItemReturnsNotFoundError(t *testing.T) {
 	val, err := EmptyEnum.AsIndex("test")
 
 	assert.Empty(t, val)
@@ -100,7 +100,7 @@ func Test_Index_NoItem_Returns_NotFoundError(t *testing.T) {
 	assert.EqualValues(t, http.StatusNotFound, err.StatusCode())
 }
 
-func Test_Index_TestItem_Returns_Value(t *testing.T) {
+func TestIndexTestItemReturnsValue(t *testing.T) {
 	teardown := setup()
 	defer teardown()
 
@@ -111,14 +111,14 @@ func Test_Index_TestItem_Returns_Value(t *testing.T) {
 	assert.EqualValues(t, 1, val)
 }
 
-func Test_Values_NoItems_Returns_EmptyStringSlice(t *testing.T) {
+func TestValuesNoItemsReturnsEmptyStringSlice(t *testing.T) {
 	vals := EmptyEnum.Values()
 
 	assert.IsType(t, []string{}, vals)
 	assert.EqualValues(t, 0, len(vals))
 }
 
-func Test_Values_TwoItems_Returns_StringSlice(t *testing.T) {
+func TestValuesTwoItemsReturnsStringSlice(t *testing.T) {
 	teardown := setup()
 	defer teardown()
 
@@ -130,14 +130,14 @@ func Test_Values_TwoItems_Returns_StringSlice(t *testing.T) {
 	assert.EqualValues(t, "pinguin", vals[1])
 }
 
-func Test_AsMap_NoItems_Returns_EmptyMap(t *testing.T) {
+func TestAsMapNoItemsReturnsEmptyMap(t *testing.T) {
 	m := EmptyEnum.AsMap()
 
 	assert.IsType(t, map[int32]string{}, m)
 	assert.EqualValues(t, 0, len(m))
 }
 
-func Test_AsMap_TwoItems_Returns_Map(t *testing.T) {
+func TestAsMapTwoItemsReturnsMap(t *testing.T) {
 	teardown := setup()
 	defer teardown()
 
@@ -150,7 +150,7 @@ func Test_AsMap_TwoItems_Returns_Map(t *testing.T) {
 	assert.EqualValues(t, "pinguin", m[1])
 }
 
-func Test_FromMap_EmptyMap_Returns_EmptyEnum(t *testing.T) {
+func TestFromMapEmptyMapReturnsEmptyEnum(t *testing.T) {
 	m := make(map[int32]string)
 
 	TestEnum2.FromMap(m)
@@ -159,7 +159,7 @@ func Test_FromMap_EmptyMap_Returns_EmptyEnum(t *testing.T) {
 	assert.EqualValues(t, 0, len(TestEnum2.Items))
 }
 
-func Test_FromMap_Map_Returns_Enum(t *testing.T) {
+func TestFromMapMapReturnsEnum(t *testing.T) {
 	m := make(map[int32]string)
 	m[3] = "extra"
 	m[4] = "super"
