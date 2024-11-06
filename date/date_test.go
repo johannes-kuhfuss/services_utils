@@ -19,7 +19,7 @@ func TestGetNowUtcStringReturnsNoErr(t *testing.T) {
 	assert.EqualValues(t, date.Format(ApiDateLayout), now)
 }
 
-func TestGetNowLocalStringWrongLocation_ReturnsErr(t *testing.T) {
+func TestGetNowLocalStringWrongLocationReturnsErr(t *testing.T) {
 	nowLocal, err := GetNowLocalString("wrong location")
 	assert.Nil(t, nowLocal)
 	assert.NotNil(t, err)
