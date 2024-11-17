@@ -66,6 +66,10 @@ func init() {
 	initLogger(false, "")
 }
 
+func Init(logFileName string) {
+	initLogger(false, logFileName)
+}
+
 func initLogger(test bool, logFileName string) {
 	encoderConfig := zap.NewProductionEncoderConfig()
 	encoderConfig.LevelKey = "level"
