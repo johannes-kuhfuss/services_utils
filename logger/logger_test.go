@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"io"
 	"os"
 	"testing"
 
@@ -60,7 +61,7 @@ func extractLog() map[string]interface{} {
 
 func TestInfoWritesInfo(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "info")
-	initLogger(true)
+	initLogger(true, "")
 	Info(infoMsg)
 	m := extractLog()
 	assert.EqualValues(t, m["level"], "info")
@@ -71,7 +72,7 @@ func TestInfoWritesInfo(t *testing.T) {
 
 func TestInfoWithFieldWritesInfoWithFields(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "info")
-	initLogger(true)
+	initLogger(true, "")
 	Info(infoMsg, Field{
 		Key:   "id",
 		Value: "123",
@@ -86,7 +87,7 @@ func TestInfoWithFieldWritesInfoWithFields(t *testing.T) {
 
 func TestErrorWritesError(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "error")
-	initLogger(true)
+	initLogger(true, "")
 	Error(errorMsg, errors.New(newErrorMsg))
 	m := extractLog()
 	assert.EqualValues(t, m["level"], "error")
@@ -98,7 +99,7 @@ func TestErrorWritesError(t *testing.T) {
 
 func TestErrorWithFieldWritesErrorWithField(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "error")
-	initLogger(true)
+	initLogger(true, "")
 	Error(errorMsg, errors.New(newErrorMsg), Field{
 		Key:   "id",
 		Value: "123",
@@ -114,7 +115,7 @@ func TestErrorWithFieldWritesErrorWithField(t *testing.T) {
 
 func TestDebugWritesDebug(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "debug")
-	initLogger(true)
+	initLogger(true, "")
 	Debug(debugMsg)
 	m := extractLog()
 	assert.EqualValues(t, m["level"], "debug")
@@ -125,7 +126,7 @@ func TestDebugWritesDebug(t *testing.T) {
 
 func TestDebugWithFieldWritesDebugWithField(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "debug")
-	initLogger(true)
+	initLogger(true, "")
 	Debug(debugMsg, Field{
 		Key:   "id",
 		Value: "123",
@@ -139,7 +140,7 @@ func TestDebugWithFieldWritesDebugWithField(t *testing.T) {
 }
 
 func TestPrintPrints(t *testing.T) {
-	initLogger(true)
+	initLogger(true, "")
 	log.Print("a", "b")
 	m := extractLog()
 	assert.EqualValues(t, m["level"], "info")
@@ -149,7 +150,7 @@ func TestPrintPrints(t *testing.T) {
 }
 
 func TestPrintfPrints(t *testing.T) {
-	initLogger(true)
+	initLogger(true, "")
 	log.Printf(printfMsg)
 	m := extractLog()
 	assert.EqualValues(t, m["level"], "info")
@@ -159,7 +160,7 @@ func TestPrintfPrints(t *testing.T) {
 }
 
 func TestPrintfWithFormatPrints(t *testing.T) {
-	initLogger(true)
+	initLogger(true, "")
 	log.Printf("my %s message", "formatted")
 	m := extractLog()
 	assert.EqualValues(t, m["level"], "info")
@@ -169,7 +170,7 @@ func TestPrintfWithFormatPrints(t *testing.T) {
 }
 
 func TestWarnWritesWarn(t *testing.T) {
-	initLogger(true)
+	initLogger(true, "")
 	Warn(warnMsg)
 	m := extractLog()
 	assert.EqualValues(t, m["level"], "warn")
@@ -179,7 +180,7 @@ func TestWarnWritesWarn(t *testing.T) {
 }
 
 func TestWarnWithFieldWritesWarnWithFields(t *testing.T) {
-	initLogger(true)
+	initLogger(true, "")
 	Warn(warnMsg, Field{
 		Key:   "id",
 		Value: "123",
@@ -193,7 +194,7 @@ func TestWarnWithFieldWritesWarnWithFields(t *testing.T) {
 }
 
 func TestWriteInfoWritesInfo(t *testing.T) {
-	initLogger(true)
+	initLogger(true, "")
 	written, writeErr := log.Write([]byte(infoMsg))
 	m := extractLog()
 	assert.NotNil(t, written)
@@ -206,7 +207,7 @@ func TestWriteInfoWritesInfo(t *testing.T) {
 }
 
 func TestWriteWarnWritesWarn(t *testing.T) {
-	initLogger(true)
+	initLogger(true, "")
 	written, writeErr := log.Write([]byte(warnMsg))
 	m := extractLog()
 	assert.NotNil(t, written)
@@ -219,7 +220,7 @@ func TestWriteWarnWritesWarn(t *testing.T) {
 }
 
 func TestWriteErrorWritesError(t *testing.T) {
-	initLogger(true)
+	initLogger(true, "")
 	written, writeErr := log.Write([]byte(errorMsg))
 	m := extractLog()
 	assert.NotNil(t, written)
@@ -233,7 +234,7 @@ func TestWriteErrorWritesError(t *testing.T) {
 
 func TestWriteDebugWritesDebug(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "debug")
-	initLogger(true)
+	initLogger(true, "")
 	written, writeErr := log.Write([]byte(debugMsg))
 	m := extractLog()
 	assert.NotNil(t, written)
@@ -281,7 +282,7 @@ func TestClearLogListClearsLogList(t *testing.T) {
 
 func TestDebugfWritesDebugWithFormat(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "debug")
-	initLogger(true)
+	initLogger(true, "")
 	Debugf("my debug message: %v", "A")
 	m := extractLog()
 	assert.EqualValues(t, m["level"], "debug")
@@ -292,7 +293,7 @@ func TestDebugfWritesDebugWithFormat(t *testing.T) {
 
 func TestInfofWritesInfoWithFormat(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "info")
-	initLogger(true)
+	initLogger(true, "")
 	Infof("my info message: %v", "A")
 	m := extractLog()
 	assert.EqualValues(t, m["level"], "info")
@@ -303,7 +304,7 @@ func TestInfofWritesInfoWithFormat(t *testing.T) {
 
 func TestWarnfWritesWarnWithFormat(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "warn")
-	initLogger(true)
+	initLogger(true, "")
 	Warnf("my warn message: %v", "A")
 	m := extractLog()
 	assert.EqualValues(t, m["level"], "warn")
@@ -314,11 +315,24 @@ func TestWarnfWritesWarnWithFormat(t *testing.T) {
 
 func TestErrorfWritesErrorWithFormat(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "error")
-	initLogger(true)
+	initLogger(true, "")
 	Errorf("my error message: %v", "A")
 	m := extractLog()
 	assert.EqualValues(t, m["level"], "error")
 	assert.Contains(t, m["caller"], "logger")
 	assert.NotEmpty(t, m["time"])
 	assert.EqualValues(t, m["msg"], "my error message: A")
+}
+
+func TestLogToFile(t *testing.T) {
+	logFile := "app.log"
+	initLogger(true, logFile)
+	Infof("my log message: %v", "A")
+	file, err1 := os.Open(logFile)
+	defer file.Close()
+	data, err2 := io.ReadAll(file)
+	assert.Nil(t, err1)
+	assert.Nil(t, err2)
+	assert.Contains(t, string(data), "\"level\":\"info\"")
+	assert.Contains(t, string(data), "\"msg\":\"my log message: A\"")
 }

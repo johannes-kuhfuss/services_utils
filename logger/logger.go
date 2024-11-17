@@ -10,6 +10,7 @@ import (
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 const (
@@ -44,6 +45,14 @@ type MemorySink struct {
 	*bytes.Buffer
 }
 
+type lumberjackSink struct {
+	*lumberjack.Logger
+}
+
+func (lumberjackSink) Sync() error {
+	return nil
+}
+
 type LogEntry struct {
 	LogTime    string
 	LogLevel   string
@@ -54,16 +63,31 @@ func (s *MemorySink) Close() error { return nil }
 func (s *MemorySink) Sync() error  { return nil }
 
 func init() {
-	initLogger(false)
+	initLogger(false, "")
 }
 
-func initLogger(test bool) {
+func initLogger(test bool, logFileName string) {
 	encoderConfig := zap.NewProductionEncoderConfig()
 	encoderConfig.LevelKey = "level"
 	encoderConfig.TimeKey = "time"
 	encoderConfig.MessageKey = "msg"
 	encoderConfig.EncodeTime = zapcore.RFC3339TimeEncoder
 	encoderConfig.StacktraceKey = ""
+
+	if logFileName != "" {
+		zap.RegisterSink("lumberjack", func(u *url.URL) (zap.Sink, error) {
+			return lumberjackSink{
+				Logger: &lumberjack.Logger{
+					Filename:   u.Opaque,
+					MaxSize:    100, // MB
+					MaxAge:     7,   // days
+					MaxBackups: 7,
+					LocalTime:  false,
+					Compress:   true,
+				},
+			}, nil
+		})
+	}
 
 	logConfig := zap.NewProductionConfig()
 	if test {
@@ -74,6 +98,9 @@ func initLogger(test bool) {
 		logConfig.OutputPaths = []string{"memory://"}
 	} else {
 		logConfig.OutputPaths = []string{getOutput()}
+	}
+	if logFileName != "" {
+		logConfig.OutputPaths = append(logConfig.OutputPaths, fmt.Sprintf("lumberjack:%v", logFileName))
 	}
 
 	logConfig.Level = zap.NewAtomicLevelAt(getLevel())
