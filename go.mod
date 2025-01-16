@@ -3,7 +3,7 @@ module github.com/johannes-kuhfuss/services_utils
 go 1.23.2
 
 require (
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	go.uber.org/zap v1.27.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
