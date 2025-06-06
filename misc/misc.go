@@ -14,5 +14,5 @@ func SliceContainsStringCI(slice []string, searchStr string) bool {
 	for _, val := range slice {
 		ciSlice = append(ciSlice, strings.ToLower(val))
 	}
-	return slices.Contains(ciSlice, searchStr)
+	return slices.Contains(ciSlice, strings.ToLower(searchStr))
 }

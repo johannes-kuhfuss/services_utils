@@ -30,10 +30,18 @@ func TestSliceContainsStringCINotInSliceReturnsFalse(t *testing.T) {
 	assert.EqualValues(t, false, in)
 }
 
-func TestSliceContainsStringCIInSliceReturnsTrue(t *testing.T) {
+func TestSliceContainsStringCIInSliceLowerCaseReturnsTrue(t *testing.T) {
 	source := []string{"New York", "Rio", "Tokyo"}
 
 	in := SliceContainsStringCI(source, "rio")
+
+	assert.EqualValues(t, true, in)
+}
+
+func TestSliceContainsStringCIInSliceUpperCaseReturnsTrue(t *testing.T) {
+	source := []string{"New York", "Rio", "Tokyo"}
+
+	in := SliceContainsStringCI(source, "RIO")
 
 	assert.EqualValues(t, true, in)
 }
