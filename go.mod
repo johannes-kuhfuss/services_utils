@@ -1,6 +1,6 @@
 module github.com/johannes-kuhfuss/services_utils
 
-go 1.25.4
+go 1.25.5
 
 require (
 	github.com/stretchr/testify v1.11.1
