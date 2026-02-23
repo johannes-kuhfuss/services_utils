@@ -27,8 +27,8 @@ var (
 )
 
 type loggerInterface interface {
-	Print(...interface{})
-	Printf(string, ...interface{})
+	Print(...any)
+	Printf(string, ...any)
 	Write([]byte) (int, error)
 }
 
@@ -38,7 +38,7 @@ type logger struct {
 
 type Field struct {
 	Key   string
-	Value interface{}
+	Value any
 }
 
 type MemorySink struct {
@@ -144,7 +144,7 @@ func GetLogger() loggerInterface {
 	return log
 }
 
-func (l logger) Printf(format string, v ...interface{}) {
+func (l logger) Printf(format string, v ...any) {
 	if len(v) == 0 {
 		Info(format)
 	} else {
@@ -152,7 +152,7 @@ func (l logger) Printf(format string, v ...interface{}) {
 	}
 }
 
-func (l logger) Print(v ...interface{}) {
+func (l logger) Print(v ...any) {
 	Info(fmt.Sprintf("%v", v))
 }
 

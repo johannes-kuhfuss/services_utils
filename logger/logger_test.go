@@ -48,9 +48,9 @@ func TestGetLoggerReturnsLogger(t *testing.T) {
 	assert.NotNil(t, myLogger)
 }
 
-func extractLog() map[string]interface{} {
+func extractLog() map[string]any {
 	output := sink.String()
-	m := make(map[string]interface{})
+	m := make(map[string]any)
 	err := json.Unmarshal([]byte(output), &m)
 	if err != nil {
 		panic(err)
@@ -247,7 +247,7 @@ func TestWriteDebugWritesDebug(t *testing.T) {
 
 func TestAddtoLogListDoesNotOverflow(t *testing.T) {
 	loglist = nil
-	for i := 0; i < 1100; i++ {
+	for range 1100 {
 		addToLogList("Info", "I was here")
 	}
 	assert.EqualValues(t, logListMaxLength, len(loglist))

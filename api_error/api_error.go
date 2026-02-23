@@ -11,13 +11,13 @@ type ApiErr interface {
 	Message() string
 	StatusCode() int
 	Error() string
-	Causes() []interface{}
+	Causes() []any
 }
 
 type apiErr struct {
-	ErrMessage    string        `json:"message"`
-	ErrStatusCode int           `json:"statuscode"`
-	ErrCauses     []interface{} `json:"causes"`
+	ErrMessage    string `json:"message"`
+	ErrStatusCode int    `json:"statuscode"`
+	ErrCauses     []any  `json:"causes"`
 }
 
 func (e apiErr) Error() string {
@@ -33,11 +33,11 @@ func (e apiErr) StatusCode() int {
 	return e.ErrStatusCode
 }
 
-func (e apiErr) Causes() []interface{} {
+func (e apiErr) Causes() []any {
 	return e.ErrCauses
 }
 
-func NewError(msg string, code int, causes []interface{}) ApiErr {
+func NewError(msg string, code int, causes []any) ApiErr {
 	return apiErr{
 		ErrMessage:    msg,
 		ErrStatusCode: code,
