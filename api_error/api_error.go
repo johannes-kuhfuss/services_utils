@@ -49,7 +49,7 @@ func NewErrorFromBytes(bytes []byte) (restErr ApiErr, e error) {
 	var (
 		rerr apiErr
 	)
-	if err := json.Unmarshal(bytes, &rerr); err != nil {
+	if json.Unmarshal(bytes, &rerr) != nil {
 		return nil, errors.New("invalid json")
 	}
 	return rerr, nil

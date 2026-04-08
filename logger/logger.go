@@ -185,7 +185,7 @@ func trimList() {
 	}
 }
 
-func addToLogList(logLevel string, msg string) {
+func addToLogList(logLevel, msg string) {
 	var entry LogEntry
 	entry.LogTime = time.Now().Format(time.RFC3339)
 	entry.LogLevel = logLevel
