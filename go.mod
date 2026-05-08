@@ -1,10 +1,10 @@
 module github.com/johannes-kuhfuss/services_utils
 
-go 1.26.1
+go 1.26.3
 
 require (
 	github.com/stretchr/testify v1.11.1
-	go.uber.org/zap v1.27.1
+	go.uber.org/zap v1.28.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
 
