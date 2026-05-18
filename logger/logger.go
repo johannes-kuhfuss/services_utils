@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"go.uber.org/zap"
@@ -21,9 +22,12 @@ const (
 )
 
 var (
-	log     logger
-	sink    *MemorySink
-	loglist []LogEntry
+	log       logger
+	sink      *MemorySink
+	fileSink  *lumberjack.Logger
+	fileMu    sync.Mutex
+	logListMu sync.Mutex
+	loglist   []LogEntry
 )
 
 type loggerInterface interface {
@@ -71,6 +75,8 @@ func Init(logFileName string) {
 }
 
 func initLogger(test bool, logFileName string) {
+	closeFileSink()
+
 	encoderConfig := zap.NewProductionEncoderConfig()
 	encoderConfig.LevelKey = "level"
 	encoderConfig.TimeKey = "time"
@@ -80,15 +86,19 @@ func initLogger(test bool, logFileName string) {
 
 	if logFileName != "" {
 		zap.RegisterSink("lumberjack", func(u *url.URL) (zap.Sink, error) {
+			lj := &lumberjack.Logger{
+				Filename:   u.Opaque,
+				MaxSize:    100, // MB
+				MaxAge:     7,   // days
+				MaxBackups: 7,
+				LocalTime:  false,
+				Compress:   true,
+			}
+			fileMu.Lock()
+			fileSink = lj
+			fileMu.Unlock()
 			return lumberjackSink{
-				Logger: &lumberjack.Logger{
-					Filename:   u.Opaque,
-					MaxSize:    100, // MB
-					MaxAge:     7,   // days
-					MaxBackups: 7,
-					LocalTime:  false,
-					Compress:   true,
-				},
+				Logger: lj,
 			}, nil
 		})
 	}
@@ -115,6 +125,16 @@ func initLogger(test bool, logFileName string) {
 	if log.log, err = logConfig.Build(zap.AddCaller(), zap.AddCallerSkip(1)); err != nil {
 		panic(err)
 	}
+}
+
+func closeFileSink() {
+	fileMu.Lock()
+	defer fileMu.Unlock()
+	if fileSink == nil {
+		return
+	}
+	_ = fileSink.Close()
+	fileSink = nil
 }
 
 func getLevel() zapcore.Level {
@@ -186,30 +206,37 @@ func trimList() {
 }
 
 func addToLogList(logLevel, msg string) {
-	var entry LogEntry
-	entry.LogTime = time.Now().Format(time.RFC3339)
-	entry.LogLevel = logLevel
-	entry.LogMessage = msg
+	entry := LogEntry{
+		LogTime:    time.Now().Format(time.RFC3339),
+		LogLevel:   logLevel,
+		LogMessage: msg,
+	}
+	logListMu.Lock()
+	defer logListMu.Unlock()
 	loglist = append(loglist, entry)
 	trimList()
 }
 
 func GetLogList() []LogEntry {
-	return loglist
+	logListMu.Lock()
+	defer logListMu.Unlock()
+	return append([]LogEntry(nil), loglist...)
 }
 
 func ClearLogList() {
+	logListMu.Lock()
+	defer logListMu.Unlock()
 	loglist = loglist[:0]
 }
 
 func Debugf(msg string, a ...any) {
 	m := fmt.Sprintf(msg, a...)
-	addToLogList("Debug", m)
 	log.log.Debug(m)
 	log.log.Sync()
 }
 
 func Debug(msg string, tags ...Field) {
+	addToLogList("Debug", msg)
 	zapTags := fieldsToZapField(tags)
 	log.log.Debug(msg, zapTags...)
 	log.log.Sync()

@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
+	"path/filepath"
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -37,10 +39,22 @@ func TestMemSinkSync(t *testing.T) {
 }
 
 func TestGetOutputReturnsOutput(t *testing.T) {
-	os.Setenv("LOG_OUTPUT", "logoutputtest")
+	t.Setenv("LOG_OUTPUT", "logoutputtest")
 	result := getOutput()
 	assert.NotNil(t, result)
 	assert.EqualValues(t, "logoutputtest", result)
+}
+
+func TestGetOutputReturnsStdoutByDefault(t *testing.T) {
+	t.Setenv("LOG_OUTPUT", " ")
+	result := getOutput()
+	assert.EqualValues(t, "stdout", result)
+}
+
+func TestGetLevelReturnsInfoForInvalidLevel(t *testing.T) {
+	t.Setenv("LOG_LEVEL", "invalid")
+	result := getLevel()
+	assert.EqualValues(t, "info", result.String())
 }
 
 func TestGetLoggerReturnsLogger(t *testing.T) {
@@ -59,7 +73,7 @@ func extractLog() map[string]any {
 }
 
 func TestInfoWritesInfo(t *testing.T) {
-	os.Setenv("LOG_LEVEL", "info")
+	t.Setenv("LOG_LEVEL", "info")
 	initLogger(true, "")
 	Info(infoMsg)
 	m := extractLog()
@@ -70,7 +84,7 @@ func TestInfoWritesInfo(t *testing.T) {
 }
 
 func TestInfoWithFieldWritesInfoWithFields(t *testing.T) {
-	os.Setenv("LOG_LEVEL", "info")
+	t.Setenv("LOG_LEVEL", "info")
 	initLogger(true, "")
 	Info(infoMsg, Field{
 		Key:   "id",
@@ -85,7 +99,7 @@ func TestInfoWithFieldWritesInfoWithFields(t *testing.T) {
 }
 
 func TestErrorWritesError(t *testing.T) {
-	os.Setenv("LOG_LEVEL", "error")
+	t.Setenv("LOG_LEVEL", "error")
 	initLogger(true, "")
 	Error(errorMsg, errors.New(newErrorMsg))
 	m := extractLog()
@@ -97,7 +111,7 @@ func TestErrorWritesError(t *testing.T) {
 }
 
 func TestErrorWithFieldWritesErrorWithField(t *testing.T) {
-	os.Setenv("LOG_LEVEL", "error")
+	t.Setenv("LOG_LEVEL", "error")
 	initLogger(true, "")
 	Error(errorMsg, errors.New(newErrorMsg), Field{
 		Key:   "id",
@@ -113,7 +127,7 @@ func TestErrorWithFieldWritesErrorWithField(t *testing.T) {
 }
 
 func TestDebugWritesDebug(t *testing.T) {
-	os.Setenv("LOG_LEVEL", "debug")
+	t.Setenv("LOG_LEVEL", "debug")
 	initLogger(true, "")
 	Debug(debugMsg)
 	m := extractLog()
@@ -124,7 +138,7 @@ func TestDebugWritesDebug(t *testing.T) {
 }
 
 func TestDebugWithFieldWritesDebugWithField(t *testing.T) {
-	os.Setenv("LOG_LEVEL", "debug")
+	t.Setenv("LOG_LEVEL", "debug")
 	initLogger(true, "")
 	Debug(debugMsg, Field{
 		Key:   "id",
@@ -232,7 +246,7 @@ func TestWriteErrorWritesError(t *testing.T) {
 }
 
 func TestWriteDebugWritesDebug(t *testing.T) {
-	os.Setenv("LOG_LEVEL", "debug")
+	t.Setenv("LOG_LEVEL", "debug")
 	initLogger(true, "")
 	written, writeErr := log.Write([]byte(debugMsg))
 	m := extractLog()
@@ -246,15 +260,15 @@ func TestWriteDebugWritesDebug(t *testing.T) {
 }
 
 func TestAddtoLogListDoesNotOverflow(t *testing.T) {
-	loglist = nil
+	ClearLogList()
 	for range 1100 {
 		addToLogList("Info", "I was here")
 	}
-	assert.EqualValues(t, logListMaxLength, len(loglist))
+	assert.EqualValues(t, logListMaxLength, len(GetLogList()))
 }
 
 func TestAddtoLogListRetainsEntries(t *testing.T) {
-	loglist = nil
+	ClearLogList()
 	addToLogList("Info", "One")
 	addToLogList("Warn", "Two")
 	addToLogList("Error", "Three")
@@ -268,7 +282,7 @@ func TestAddtoLogListRetainsEntries(t *testing.T) {
 }
 
 func TestClearLogListClearsLogList(t *testing.T) {
-	loglist = nil
+	ClearLogList()
 	addToLogList("Info", "One")
 	addToLogList("Warn", "Two")
 	addToLogList("Error", "Three")
@@ -279,8 +293,46 @@ func TestClearLogListClearsLogList(t *testing.T) {
 	assert.EqualValues(t, 0, len(l2))
 }
 
+func TestGetLogListReturnsCopy(t *testing.T) {
+	ClearLogList()
+	addToLogList("Info", "One")
+	l := GetLogList()
+	l[0].LogMessage = "changed"
+
+	result := GetLogList()
+	assert.EqualValues(t, "One", result[0].LogMessage)
+}
+
+func TestAddToLogListHandlesConcurrentWrites(t *testing.T) {
+	ClearLogList()
+	var wg sync.WaitGroup
+	for range 1100 {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			addToLogList("Info", "I was here")
+		}()
+	}
+	wg.Wait()
+
+	assert.EqualValues(t, logListMaxLength, len(GetLogList()))
+}
+
+func TestDebugAddsToLogList(t *testing.T) {
+	t.Setenv("LOG_LEVEL", "debug")
+	initLogger(true, "")
+	ClearLogList()
+
+	Debug(debugMsg)
+
+	l := GetLogList()
+	assert.EqualValues(t, 1, len(l))
+	assert.EqualValues(t, "Debug", l[0].LogLevel)
+	assert.EqualValues(t, debugMsg, l[0].LogMessage)
+}
+
 func TestDebugfWritesDebugWithFormat(t *testing.T) {
-	os.Setenv("LOG_LEVEL", "debug")
+	t.Setenv("LOG_LEVEL", "debug")
 	initLogger(true, "")
 	Debugf("my debug message: %v", "A")
 	m := extractLog()
@@ -291,7 +343,7 @@ func TestDebugfWritesDebugWithFormat(t *testing.T) {
 }
 
 func TestInfofWritesInfoWithFormat(t *testing.T) {
-	os.Setenv("LOG_LEVEL", "info")
+	t.Setenv("LOG_LEVEL", "info")
 	initLogger(true, "")
 	Infof("my info message: %v", "A")
 	m := extractLog()
@@ -302,7 +354,7 @@ func TestInfofWritesInfoWithFormat(t *testing.T) {
 }
 
 func TestWarnfWritesWarnWithFormat(t *testing.T) {
-	os.Setenv("LOG_LEVEL", "warn")
+	t.Setenv("LOG_LEVEL", "warn")
 	initLogger(true, "")
 	Warnf("my warn message: %v", "A")
 	m := extractLog()
@@ -313,7 +365,7 @@ func TestWarnfWritesWarnWithFormat(t *testing.T) {
 }
 
 func TestErrorfWritesErrorWithFormat(t *testing.T) {
-	os.Setenv("LOG_LEVEL", "error")
+	t.Setenv("LOG_LEVEL", "error")
 	initLogger(true, "")
 	Errorf("my error message: %v", "A")
 	m := extractLog()
@@ -323,17 +375,26 @@ func TestErrorfWritesErrorWithFormat(t *testing.T) {
 	assert.EqualValues(t, m["msg"], "my error message: A")
 }
 
+func TestErrorWithNilErrorWritesErrorWithoutErrorField(t *testing.T) {
+	t.Setenv("LOG_LEVEL", "error")
+	initLogger(true, "")
+	Error(errorMsg, nil)
+	m := extractLog()
+	assert.EqualValues(t, m["level"], "error")
+	assert.EqualValues(t, m["msg"], errorMsg)
+	assert.NotContains(t, m, "error")
+}
+
 func TestLogToFile(t *testing.T) {
-	logFile := "app.log"
+	logFile := filepath.Join(t.TempDir(), "app.log")
 	initLogger(true, logFile)
+	t.Cleanup(func() {
+		initLogger(true, "")
+	})
 	Infof("my log message: %v", "A")
-	/*
-		file, err1 := os.Open(logFile)
-		defer file.Close()
-		data, err2 := io.ReadAll(file)
-		assert.Nil(t, err1)
-		assert.Nil(t, err2)
-		assert.Contains(t, string(data), "\"level\":\"info\"")
-		assert.Contains(t, string(data), "\"msg\":\"my log message: A\"")
-	*/
+
+	data, err := os.ReadFile(logFile)
+	assert.Nil(t, err)
+	assert.Contains(t, string(data), "\"level\":\"info\"")
+	assert.Contains(t, string(data), "\"msg\":\"my log message: A\"")
 }
