@@ -159,7 +159,7 @@ func TestPrintPrints(t *testing.T) {
 	assert.EqualValues(t, m["level"], "info")
 	assert.Contains(t, m["caller"], "logger")
 	assert.NotEmpty(t, m["time"])
-	assert.EqualValues(t, m["msg"], "[a b]")
+	assert.EqualValues(t, m["msg"], "ab")
 }
 
 func TestPrintfPrints(t *testing.T) {

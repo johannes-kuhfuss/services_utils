@@ -173,7 +173,7 @@ func (l logger) Printf(format string, v ...any) {
 }
 
 func (l logger) Print(v ...any) {
-	Info(fmt.Sprintf("%v", v))
+	Info(fmt.Sprint(v...))
 }
 
 func (l logger) Write(data []byte) (n int, err error) {
@@ -229,6 +229,7 @@ func ClearLogList() {
 	loglist = loglist[:0]
 }
 
+// Debugf writes only to the zap logger and intentionally skips the in-memory log list.
 func Debugf(msg string, a ...any) {
 	m := fmt.Sprintf(msg, a...)
 	log.log.Debug(m)
