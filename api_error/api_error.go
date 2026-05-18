@@ -2,7 +2,6 @@ package api_error
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 )
@@ -46,11 +45,9 @@ func NewError(msg string, code int, causes []any) ApiErr {
 }
 
 func NewErrorFromBytes(bytes []byte) (restErr ApiErr, e error) {
-	var (
-		rerr apiErr
-	)
-	if json.Unmarshal(bytes, &rerr) != nil {
-		return nil, errors.New("invalid json")
+	var rerr apiErr
+	if err := json.Unmarshal(bytes, &rerr); err != nil {
+		return nil, fmt.Errorf("invalid json: %w", err)
 	}
 	return rerr, nil
 }

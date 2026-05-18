@@ -1,6 +1,7 @@
 package api_error
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 	"testing"
@@ -28,7 +29,10 @@ func TestNewErrorFromBytesError(t *testing.T) {
 	restErr, err := NewErrorFromBytes(bytes)
 	assert.NotNil(t, err)
 	assert.Nil(t, restErr)
-	assert.EqualValues(t, "invalid json", err.Error())
+	assert.Contains(t, err.Error(), "invalid json")
+
+	var syntaxErr *json.SyntaxError
+	assert.True(t, errors.As(err, &syntaxErr))
 }
 
 func TestNewErrorFromBytesNoError(t *testing.T) {
