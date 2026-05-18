@@ -50,6 +50,18 @@ func TestItemByValueTestItemReturnsTestItemValue(t *testing.T) {
 	assert.EqualValues(t, "test", item.Val)
 }
 
+func TestItemByValueIgnoresCase(t *testing.T) {
+	teardown := setup()
+	defer teardown()
+
+	item, err := TestEnum1.ItemByValue("PINGUIN")
+
+	assert.NotNil(t, item)
+	assert.Nil(t, err)
+	assert.EqualValues(t, 1, item.Idx)
+	assert.EqualValues(t, "pinguin", item.Val)
+}
+
 func TestItemByIndexNoItemReturnsNotFoundError(t *testing.T) {
 	item, err := EmptyEnum.ItemByIndex(1)
 
@@ -152,11 +164,14 @@ func TestAsMapTwoItemsReturnsMap(t *testing.T) {
 
 func TestFromMapEmptyMapReturnsEmptyEnum(t *testing.T) {
 	m := make(map[int32]string)
+	e := Enum{
+		Items: []EnumItem{eItemOne},
+	}
 
-	TestEnum2.FromMap(m)
+	e.FromMap(m)
 
-	assert.NotNil(t, TestEnum2)
-	assert.EqualValues(t, 0, len(TestEnum2.Items))
+	assert.NotNil(t, e)
+	assert.EqualValues(t, 0, len(e.Items))
 }
 
 func TestFromMapMapReturnsEnum(t *testing.T) {
@@ -164,12 +179,46 @@ func TestFromMapMapReturnsEnum(t *testing.T) {
 	m[3] = "extra"
 	m[4] = "super"
 
-	TestEnum2.FromMap(m)
+	var e Enum
+	e.FromMap(m)
 
-	val3, _ := TestEnum2.AsValue(3)
-	val4, _ := TestEnum2.AsValue(4)
-	assert.NotNil(t, TestEnum2)
-	assert.EqualValues(t, 2, len(TestEnum2.Items))
+	val3, _ := e.AsValue(3)
+	val4, _ := e.AsValue(4)
+	assert.NotNil(t, e)
+	assert.EqualValues(t, 2, len(e.Items))
 	assert.EqualValues(t, val3, m[3])
 	assert.EqualValues(t, val4, m[4])
+}
+
+func TestFromMapReplacesExistingItems(t *testing.T) {
+	e := Enum{
+		Items: []EnumItem{eItemOne, eItemTwo},
+	}
+	m := map[int32]string{
+		5: "replacement",
+	}
+
+	e.FromMap(m)
+
+	assert.EqualValues(t, 1, len(e.Items))
+	assert.EqualValues(t, int32(5), e.Items[0].Idx)
+	assert.EqualValues(t, "replacement", e.Items[0].Val)
+}
+
+func TestFromMapSortsItemsByIndex(t *testing.T) {
+	e := Enum{}
+	m := map[int32]string{
+		3: "third",
+		1: "first",
+		2: "second",
+	}
+
+	e.FromMap(m)
+
+	assert.EqualValues(t, []EnumItem{
+		{Idx: 1, Val: "first"},
+		{Idx: 2, Val: "second"},
+		{Idx: 3, Val: "third"},
+	}, e.Items)
+	assert.EqualValues(t, []string{"first", "second", "third"}, e.Values())
 }
